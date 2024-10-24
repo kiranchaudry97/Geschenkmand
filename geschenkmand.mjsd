@@ -1,0 +1,81 @@
+import * as readline from 'node:readline/promises';
+import { stdin as input, stdout as output } from 'node:process';
+
+const userInput = readline.createInterface({ input, output });
+
+//opdracht 1 geschenk mand kunnen kiezen van 3 to 20 en kunnen wijzingen als het foutief is .
+async function kiesGrootteGeschenkmand() {
+    let grootteGeschenkmand;
+    while (true) {
+        grootteGeschenkmand = parseFloat(await userInput.question("Hoe groot is de geschenkmand? Kies een grootte van 3 tot 20: "));
+        if (grootteGeschenkmand >= 3 && grootteGeschenkmand <= 20) {
+            console.log("De grootte van de geschenkmand is " + grootteGeschenkmand);
+            break;
+        } else {
+            console.log("Ongeldige grootte. Kies een ander getal tussen 3 en 20.");
+        }
+    }
+    return grootteGeschenkmand;
+}
+
+//opdracht 2 kunnen kiezen van keuze drank en toevoegen
+async function vulGeschenkmand(grootte) {
+    let geschenkmand = [];
+    while (geschenkmand.length < grootte) {
+        console.log("Kies een geschenk: 'wijn', 'bier' of 'fruitsap'");
+        let keuzegeschenk = await userInput.question("Type je keuze: ");
+
+        if (keuzegeschenk === 'wijn' || keuzegeschenk === 'bier' || keuzegeschenk === 'fruitsap') {
+            geschenkmand.push(keuzegeschenk);
+            console.log(keuzegeschenk + " is toegevoegd aan je geschenkmand.");
+        } else {
+            console.log("Ongeldige keuze. Kies 'wijn', 'bier' of 'fruitsap'.");
+        }
+    }
+    return geschenkmand;
+}
+
+// opdracht 3 kunnen de prijzen bereken van deze drank
+function berekenTotaal(geschenkmand) {
+    const prijzen = { 'wijn': 10, 'bier': 2, 'fruitsap': 3 };
+    let totaal = 0;
+
+    for (let geschenk of geschenkmand) {
+        totaal += prijzen[geschenk];
+    }
+
+    return totaal;
+}
+
+//opdracht 4 de btw kunnen bereken van deze drank
+function berekenTotaalBTW(geschenkmand) {
+    const prijzen = { 'wijn': 10, 'bier': 2, 'fruitsap': 3 };
+    const btwTarieven = { 'wijn': 21, 'bier': 6, 'fruitsap': 12 };
+    let totaalZonderBTW = 0;
+    let totaalMetBTW = 0;
+
+    for (let geschenk of geschenkmand) {
+        let prijs = prijzen[geschenk];
+        let btwTarief = btwTarieven[geschenk];
+        let btw = (prijs * btwTarief) / 100;
+        totaalZonderBTW += prijs;
+        totaalMetBTW += prijs + btw;
+    }
+
+    return { totaalZonderBTW, totaalMetBTW };
+}
+
+async function main() {
+    let grootteGeschenkmand = await kiesGrootteGeschenkmand();
+    let geschenkmand = await vulGeschenkmand(grootteGeschenkmand);
+
+    let totaal = berekenTotaal(geschenkmand);
+    let { totaalZonderBTW, totaalMetBTW } = berekenTotaalBTW(geschenkmand);
+
+    console.log(`De waarde van de geschenkmand zonder BTW is: €${totaalZonderBTW.toFixed(2)}`);
+    console.log(`De waarde van de geschenkmand inclusief BTW is: €${totaalMetBTW.toFixed(2)}`);
+
+    process.exit();
+}
+
+main();
